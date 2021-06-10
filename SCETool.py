@@ -1,5 +1,6 @@
 import tkinter
 import os
+from tkinter import ttk
 
 USERPATH = ''
 
@@ -82,6 +83,7 @@ class mywindow ():
         if ( stageid not in range ( self.stagenumber ) ):
             return
         self.stage[self.nowstage].grid_forget ()
+        self.stage[self.nowstage].grid_propagate(0)
         self.stage[stageid].grid ( row = 0 , column = 0 )
         self.nowstage = stageid
 
@@ -128,7 +130,7 @@ class mywindow ():
         textpassword = tkinter.Label ( windowsignup , text = '密码' )
 
         entryuser = tkinter.Entry ( windowsignup )
-        entrypassword = tkinter.Entry ( windowsignup )
+        entrypassword = tkinter.Entry ( windowsignup , show='*')
 
         textuser.grid ( row = 0, column = 0 )
         entryuser.grid ( row = 0 , column = 1 )
@@ -160,8 +162,8 @@ class mywindow ():
     def initlogin ( self ):
         stageid = 0
 
-        textuser = tkinter.Label ( self.stage[stageid] , text = '用户名' )
-        textpassword = tkinter.Label ( self.stage[stageid] , text = '密码' )
+        textuser = tkinter.Label ( self.stage[stageid] , text = 'Username       ' )
+        textpassword = tkinter.Label ( self.stage[stageid] , text = 'Password       ' )
 
         entryuser = tkinter.Entry ( self.stage[stageid] )
         entrypassword = tkinter.Entry ( self.stage[stageid] , show = '*' )
@@ -171,8 +173,8 @@ class mywindow ():
         textpassword.grid ( row = 2 , column = 0 )
         entrypassword.grid ( row = 2 , column = 1 )
 
-        self.stagebut[stageid][0].config ( text = '注册' , command = self.signup )
-        self.stagebut[stageid][1].config ( text = '登录' , command = lambda:self.signin(stageid,entryuser.get(),entrypassword.get()) )
+        self.stagebut[stageid][0].config ( text = 'Regsiter' , command = self.signup )
+        self.stagebut[stageid][1].config ( text = 'Login' , command = lambda:self.signin(stageid,entryuser.get(),entrypassword.get()) )
 
     def commitcodeline ( self , window , codeline ):
         if codeline == '':
@@ -510,24 +512,36 @@ class mywindow ():
 
     def __init__ (self):
         self.mainwindow = tkinter.Tk()
-
+        self.mainwindow.title ( 'FudanSCETool' )
+        ws = self.mainwindow.winfo_screenwidth()
+        hs = self.mainwindow.winfo_screenheight()
+        w = 500
+        h = 150
+        x = (ws/2) - (w/2)
+        y = (hs/2) - (h/2)
+        self.mainwindow.geometry('%dx%d+%d+%d' % (w, h, x, y))
         self.stagenumber = 5
 
         self.stage = [ 0 for i in range (self.stagenumber) ]
-        self.stagetitle = [ 0 for i in range (self.stagenumber) ]
         self.stagebut = [ 0 for i in range (self.stagenumber) ]
         self.nowstage = 0
         
         for i in range ( self.stagenumber ):
-            self.stage[i] = tkinter.Frame ( self.mainwindow )
-
-            self.stagetitle[i] = tkinter.Label ( self.stage[i] , text = 'Stage' + str(i) )
-            self.stagetitle[i].grid ( row = 0 , column = 0 )
-
+            s = ttk.Style()
+            s.configure('TLabelframe.Label', foreground='blue')
+            self.stage[i] = ttk.LabelFrame ( self.mainwindow, text = 'Stage ' + str(i), width=w-10,height=h-10,)
+            self.stage[i].grid_propagate(0)
+            # self.stage[i].grid_columnconfigure(1, minsize=2, weight = 1)
+            # self.stage[i].grid_columnconfigure(2, minsize=200, weight = 1)
+            # self.stage[i].grid_columnconfigure(3, minsize=200, weight = 1)
+            # self.stage[i].grid_columnconfigure(4, minsize=200, weight = 1)
+            # self.stage[i].grid_rowconfigure(1, minsize=5, weight = 1)
+            # self.stage[i].grid_rowconfigure(2, minsize=5, weight = 1)
+            # self.stage[i].grid_rowconfigure(3, minsize=5, weight = 1)
             self.stagebut[i] = [tkinter.Button(self.stage[i],command = lambda:self.setstage(self.nowstage-1) ),
                                 tkinter.Button(self.stage[i],command = lambda:self.setstage(self.nowstage+1) )]
-            self.stagebut[i][0].config ( text = '上一步' )
-            self.stagebut[i][1].config ( text = '下一步' )
+            self.stagebut[i][0].config ( text = 'Back' )
+            self.stagebut[i][1].config ( text = 'Next' )
             self.stagebut[i][0].grid ( row = 3 ,  column = 0 )
             self.stagebut[i][1].grid ( row = 3 ,  column = 1 )
             
