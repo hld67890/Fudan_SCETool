@@ -1,6 +1,7 @@
 import tkinter
 import os
 from tkinter import ttk
+from tkinter.ttk import Progressbar
 
 USERPATH = ''
 
@@ -168,13 +169,16 @@ class mywindow ():
         entryuser = tkinter.Entry ( self.stage[stageid] )
         entrypassword = tkinter.Entry ( self.stage[stageid] , show = '*' )
 
-        textuser.grid ( row = 1 , column = 0 )
-        entryuser.grid ( row = 1 , column = 1 )
-        textpassword.grid ( row = 2 , column = 0 )
-        entrypassword.grid ( row = 2 , column = 1 )
+        self.pbar[stageid].grid ( row = 0, column = 0, columnspan = 4 )
+        textuser.grid ( row = 1 , column = 1 )
+        entryuser.grid ( row = 1 , column = 2 )
+        textpassword.grid ( row = 2 , column = 1 )
+        entrypassword.grid ( row = 2 , column = 2 )
 
         self.stagebut[stageid][0].config ( text = 'Regsiter' , command = self.signup )
         self.stagebut[stageid][1].config ( text = 'Login' , command = lambda:self.signin(stageid,entryuser.get(),entrypassword.get()) )
+        self.stagebut[stageid][0].grid ( row = 4 ,  column = 1 )
+        self.stagebut[stageid][1].grid ( row = 4 ,  column = 2 )
 
     def commitcodeline ( self , window , codeline ):
         if codeline == '':
@@ -324,6 +328,10 @@ class mywindow ():
         buttonobject.grid ( row = 1 , column = 2 )
         buttonusecase.grid ( row = 1 , column = 3 )
         
+        self.pbar[stageid].grid ( row = 0, column = 0, columnspan = 5 )
+        self.stagebut[stageid][0].grid ( row = 4 ,  column = 1 )
+        self.stagebut[stageid][1].grid ( row = 4 ,  column = 2 )
+        
     def commitcocomo ( self , window , KDSI , a , b , F ):
         if KDSI == '' or a == '' or b == '' or F == '':
             return
@@ -445,8 +453,12 @@ class mywindow ():
         buttoncocomo = tkinter.Button ( self.stage[stageid] , text = 'COCOMO 81' , command = self.cocomo )
         buttonanalog = tkinter.Button ( self.stage[stageid] , text = '类比法' , command = self.analog )
         
-        buttoncocomo.grid ( row = 1 , column = 0 )
-        buttonanalog.grid ( row = 1 , column = 1 )
+        buttoncocomo.grid ( row = 1 , column = 1 )
+        buttonanalog.grid ( row = 1 , column = 2 )
+        
+        self.pbar[stageid].grid ( row = 0, column = 0, columnspan = 4 )
+        self.stagebut[stageid][0].grid ( row = 4 ,  column = 1 )
+        self.stagebut[stageid][1].grid ( row = 4 ,  column = 2 )
 
     def commitcost ( self , window , CF ):
         if CF == '':
@@ -496,7 +508,10 @@ class mywindow ():
 
         buttoncost = tkinter.Button ( self.stage[stageid] , text = '成本估算' , command = self.cost )
         
-        buttoncost.grid ( row = 1 , column = 0 )
+        self.pbar[stageid].grid ( row = 0, column = 0, columnspan = 5 )
+        self.stagebut[stageid][0].grid ( row = 3 ,  column = 1 )
+        self.stagebut[stageid][1].grid ( row = 3 ,  column = 3 )
+        buttoncost.grid ( row = 1 , column = 2 )
 
     # TODO
     def export ( self ):
@@ -506,8 +521,9 @@ class mywindow ():
         stageid = 4
 
         buttoncost = tkinter.Button ( self.stage[stageid] , text = '导出结果' , command = self.export )
+        self.pbar[stageid].grid ( row = 0, column = 0, columnspan = 3 )
         
-        buttoncost.grid ( row = 1 , column = 0 )
+        buttoncost.grid ( row = 1 , column = 1 )
 
 
     def __init__ (self):
@@ -515,7 +531,7 @@ class mywindow ():
         self.mainwindow.title ( 'FudanSCETool' )
         ws = self.mainwindow.winfo_screenwidth()
         hs = self.mainwindow.winfo_screenheight()
-        w = 500
+        w = 375
         h = 150
         x = (ws/2) - (w/2)
         y = (hs/2) - (h/2)
@@ -524,7 +540,9 @@ class mywindow ():
 
         self.stage = [ 0 for i in range (self.stagenumber) ]
         self.stagebut = [ 0 for i in range (self.stagenumber) ]
+        self.pbar = [ 0 for i in range (self.stagenumber) ]
         self.nowstage = 0
+        self.padding = tkinter.Label ( self.mainwindow , text = ' ' )
         
         for i in range ( self.stagenumber ):
             s = ttk.Style()
@@ -542,8 +560,9 @@ class mywindow ():
                                 tkinter.Button(self.stage[i],command = lambda:self.setstage(self.nowstage+1) )]
             self.stagebut[i][0].config ( text = 'Back' )
             self.stagebut[i][1].config ( text = 'Next' )
-            self.stagebut[i][0].grid ( row = 3 ,  column = 0 )
-            self.stagebut[i][1].grid ( row = 3 ,  column = 1 )
+            
+            self.pbar[i] = Progressbar(self.stage[i], length=w, style='black.Horizontal.TProgressbar')
+            self.pbar[i]['value'] = 100 * (i + 1) / self.stagenumber
             
         self.stage[self.nowstage].grid ( row = 0 , column = 0 )
 
