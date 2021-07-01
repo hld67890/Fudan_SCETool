@@ -2,6 +2,7 @@ import tkinter
 import os
 from tkinter import ttk
 from tkinter.ttk import Progressbar
+import xlwt
 
 USERPATH = ''
 
@@ -192,6 +193,9 @@ class mywindow ():
         buttonok = tkinter.Button ( windowshow , text = '确认' , command = lambda:self.closewindow(window,windowshow) )
         buttonok.grid ( row = 100 , column = 0 )
 
+        global estimation
+        estimation.codeline = codeline
+
 
     def codeline ( self ):
         window = tkinter.Toplevel ( self.mainwindow )
@@ -219,6 +223,12 @@ class mywindow ():
 
         buttonok = tkinter.Button ( windowshow , text = '确认' , command = lambda:self.closewindow(window,windowshow) )
         buttonok.grid ( row = 100 , column = 0 )
+
+        global estimation
+        estimation.UFP = UFP
+        estimation.VAF= VAF
+        estimation.FP = str(int(UFP) * int(VAF))
+
 
     def functionpoint ( self ):
         window = tkinter.Toplevel ( self.mainwindow )
@@ -252,6 +262,11 @@ class mywindow ():
 
         buttonok = tkinter.Button ( windowshow , text = '确认' , command = lambda:self.closewindow(window,windowshow) )
         buttonok.grid ( row = 100 , column = 0 )
+
+        global estimation
+        estimation.UOP = UOP
+        estimation.R = R
+        estimation.OP = str(res)
 
     def objectpoint ( self ):
         window = tkinter.Toplevel ( self.mainwindow )
@@ -287,6 +302,14 @@ class mywindow ():
 
         buttonok = tkinter.Button ( windowshow , text = '确认' , command = lambda:self.closewindow(window,windowshow) )
         buttonok.grid ( row = 100 , column = 0 )
+
+        global estimation
+        estimation.UUCP = UUCP
+        estimation.TCF = TCF
+        estimation.ECF = ECF
+        estimation.PF = PF
+        estimation.UCP = str(int(int(UUCP) * float(TCF) * float(ECF)))
+        estimation.Effort = str(int(UCP * float(PF)))
 
     def usecasepoint ( self ):
         window = tkinter.Toplevel ( self.mainwindow )
@@ -347,6 +370,7 @@ class mywindow ():
 
         global estimation
         estimation.effort = Effort
+        estimation.method = 'COCOMO 81'
 
     def cocomo ( self ):
         window = tkinter.Toplevel ( self.mainwindow )
@@ -423,7 +447,7 @@ class mywindow ():
 
         global estimation
         estimation.effort = float (parameter[mi][5])
-
+        estimation.method = '类比法'
 
 
     def analog ( self ):
@@ -475,6 +499,7 @@ class mywindow ():
         buttonok = tkinter.Button ( windowshow , text = '确认' , command = lambda:self.closewindow(window,windowshow) )
         buttonok.grid ( row = 100 , column = 0 )
 
+        estimation.CF = CF
         estimation.cost = cost
 
 
@@ -513,9 +538,84 @@ class mywindow ():
         self.stagebut[stageid][1].grid ( row = 3 ,  column = 3 )
         buttoncost.grid ( row = 1 , column = 2 )
 
-    # TODO
     def export ( self ):
-        pass
+        book = xlwt.Workbook ()
+        sheet = book.add_sheet ( 'report' )
+
+        sheet.write ( 0 , 0 , '估算结果' )
+        
+        global estimation
+        row = 3
+        col = 0
+        flag = 0
+
+        if hasattr ( estimation , 'codeline' ) or hasattr ( estimation , 'FP' ) or hasattr ( estimation , 'UP' ) or hasattr ( estimation , 'UCP' ):
+            sheet.write ( 2 , 0 , '规模估算' )
+
+        if hasattr ( estimation , 'codeline' ):
+            sheet.write ( row , col , '代码行估算' )
+            sheet.write ( row + 1 , col , '代码行数：' )
+            sheet.write ( row + 1 , col + 1 , estimation.codeline )
+            col += 3
+            flag = 1
+        
+        if hasattr ( estimation , 'FP' ):
+            sheet.write ( row , col , '功能点估算' )
+            sheet.write ( row + 1 , col , '未调整功能点：' )
+            sheet.write ( row + 1 , col + 1 , estimation.UFP )
+            sheet.write ( row + 2 , col , '调整因子：' )
+            sheet.write ( row + 2 , col + 1 , estimation.VAF )
+            sheet.write ( row + 3 , col , '功能点：' )
+            sheet.write ( row + 3 , col + 1 , estimation.FP )
+            col += 3
+            flag = 1
+            
+        if hasattr ( estimation , 'OP' ):
+            sheet.write ( row , col , '对象点估算' )
+            sheet.write ( row + 1 , col , '估算对象点：' )
+            sheet.write ( row + 1 , col + 1 , estimation.UOP )
+            sheet.write ( row + 2 , col , '重用百分比：' )
+            sheet.write ( row + 2 , col + 1 , estimation.R )
+            sheet.write ( row + 3 , col , '对象点：' )
+            sheet.write ( row + 3 , col + 1 , estimation.OP )
+            col += 3
+            flag = 1
+
+        if hasattr ( estimation , 'UCP' ):
+            sheet.write ( row , col , '用例点估算' )
+            sheet.write ( row + 1 , col , '未调整用例点：' )
+            sheet.write ( row + 1 , col + 1 , estimation.UUCP )
+            sheet.write ( row + 2 , col , '技术复杂度因子：' )
+            sheet.write ( row + 2 , col + 1 , estimation.TCF )
+            sheet.write ( row + 3 , col , '环境复杂度因子：' )
+            sheet.write ( row + 3 , col + 1 , estimation.ECF )
+            sheet.write ( row + 4 , col , '生产力因子：' )
+            sheet.write ( row + 4 , col + 1 , estimation.PF )
+            sheet.write ( row + 5 , col , '用例点：' )
+            sheet.write ( row + 5 , col + 1 , estimation.UCP )
+            sheet.write ( row + 6 , col , '工作量：' )
+            sheet.write ( row + 6 , col + 1 , estimation.Effort )
+            col += 3
+            flag = 1
+
+        if flag == 1:
+            row += 8
+
+        if hasattr ( estimation , 'method' ):
+            sheet.write ( row , 0 , '工作量估算' )
+            sheet.write ( row + 1 , 0 , '使用' + estimation.method + '进行估算' )
+            sheet.write ( row + 2 , 0 , '工作量：' )
+            sheet.write ( row + 2 , 1 , estimation.effort )
+            row += 4
+
+        if hasattr ( estimation , 'cost' ):
+            sheet.write ( row , 0 , '成本估算' )
+            sheet.write ( row + 1 , 0 , '成本因子：' )
+            sheet.write ( row + 1 , 1 , estimation.CF )
+            sheet.write ( row + 2 , 0 , '成本估算：' )
+            sheet.write ( row + 2 , 1 , estimation.cost )
+
+        book.save ( 'report.xls' )
 
     def initexport ( self ):
         stageid = 4
